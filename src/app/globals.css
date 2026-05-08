@@ -349,7 +349,7 @@ section.block { padding: 120px 0; position: relative; }
   display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
 }
 .booth-img {
-  aspect-ratio: 3/4;
+  aspect-ratio: 5/4;
   background: var(--paper-2);
   border: 1.5px solid var(--ink);
   border-radius: 12px;

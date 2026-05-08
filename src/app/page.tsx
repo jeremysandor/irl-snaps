@@ -1,16 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import { useState, type FormEvent } from "react";
 
 type ModalView = "closed" | "form" | "success";
 
 export default function Home() {
   const [modal, setModal] = useState<ModalView>("closed");
-  const [strips, setStrips] = useState(10);
+  const [guests, setGuests] = useState(200);
   const [nights, setNights] = useState(6);
-  const [share, setShare] = useState(20);
 
-  const monthly = Math.round(strips * nights * 4.33 * 5 * (share / 100));
+  const stripsPerNight = Math.round(guests * 0.08);
+  const monthly = Math.round(stripsPerNight * nights * 4.33 * 7 * 0.25);
   const monthlyLabel = `$${monthly.toLocaleString()}`;
 
   const openDemo = () => setModal("form");
@@ -48,7 +49,7 @@ export default function Home() {
             <div>
               <div className="eyebrow">Installed photobooths · For bars &amp; restaurants</div>
               <h1 style={{ marginTop: 28 }}>
-                You don&rsquo;t pay. <em>You get paid.</em>
+                You don&rsquo;t pay. You get <em>paid</em>.
               </h1>
               <p className="sub">
                 Zero cost to your venue. We install, we maintain. You cash a check every month.
@@ -62,7 +63,7 @@ export default function Home() {
                 </a>
               </div>
               <p className="tiny" style={{ marginTop: 32 }}>
-                ◦ 140+ venues · 2.1M strips printed · $0 upfront
+                ◦ $0 upfront · Free install · Monthly check
               </p>
             </div>
 
@@ -248,27 +249,27 @@ export default function Home() {
                     maxWidth: 440,
                   }}
                 >
-                  Most venues see 6–14 strips a night on a busy weekend. Your share is negotiated
-                  per venue — case by case. Play with the numbers.
+                  Punch in a typical night. See what the booth pays you.
                 </p>
               </div>
               <div>
                 <div className="big-number">
                   {monthlyLabel}
-                  <small>Estimated monthly payout</small>
+                  <small>Estimated monthly check</small>
                 </div>
                 <div className="calc">
                   <div className="calc-row">
-                    <span className="calc-label">Strips per night (avg)</span>
+                    <span className="calc-label">Guests per night</span>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <input
                         type="range"
-                        min={3}
-                        max={25}
-                        value={strips}
-                        onChange={(e) => setStrips(+e.target.value)}
+                        min={75}
+                        max={500}
+                        step={25}
+                        value={guests}
+                        onChange={(e) => setGuests(+e.target.value)}
                       />
-                      <span className="calc-value">{strips}</span>
+                      <span className="calc-value">{guests}</span>
                     </div>
                   </div>
                   <div className="calc-row">
@@ -285,21 +286,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="calc-row">
-                    <span className="calc-label">Price per strip</span>
-                    <span className="calc-value">$5</span>
-                  </div>
-                  <div className="calc-row">
-                    <span className="calc-label">Your share</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <input
-                        type="range"
-                        min={10}
-                        max={33}
-                        value={share}
-                        onChange={(e) => setShare(+e.target.value)}
-                      />
-                      <span className="calc-value">{share}%</span>
-                    </div>
+                    <span className="calc-label">Strips per night</span>
+                    <span className="calc-value">~{stripsPerNight}</span>
                   </div>
                   <div className="calc-row total">
                     <span className="calc-label" style={{ fontSize: 15, opacity: 1 }}>
@@ -319,7 +307,7 @@ export default function Home() {
                     marginBottom: 0,
                   }}
                 >
-                  Estimate · Exact share negotiated per venue · Capped at 33%
+                  Estimate at standard partner terms · Your share is set per venue
                 </p>
               </div>
             </div>
@@ -347,55 +335,21 @@ export default function Home() {
 
           <div className="booth-showcase">
             <div className="booth-img">
-              <svg width="70%" viewBox="0 0 200 280" fill="none">
-                <rect x="20" y="10" width="160" height="260" rx="6" fill="#1a1714" />
-                <rect x="30" y="22" width="140" height="70" rx="3" fill="#c8392c" />
-                <text
-                  x="100"
-                  y="62"
-                  textAnchor="middle"
-                  fontFamily="Fraunces, serif"
-                  fontSize="20"
-                  fontWeight="900"
-                  fill="#f3ead7"
-                  fontStyle="italic"
-                >
-                  YOUR BAR
-                </text>
-                <rect
-                  x="40"
-                  y="110"
-                  width="120"
-                  height="80"
-                  rx="2"
-                  fill="#2a2520"
-                  stroke="#4a3f34"
-                  strokeWidth="1"
-                />
-                <circle cx="100" cy="150" r="14" fill="#4a3f34" />
-                <circle cx="100" cy="150" r="9" fill="#1a1714" />
-                <rect x="50" y="210" width="100" height="20" rx="2" fill="#d4a23a" />
-                <text
-                  x="100"
-                  y="224"
-                  textAnchor="middle"
-                  fontFamily="DM Mono, monospace"
-                  fontSize="9"
-                  fill="#1a1714"
-                  letterSpacing="2"
-                >
-                  INSERT $5
-                </text>
-                <rect x="55" y="240" width="90" height="10" fill="#4a3f34" rx="1" />
-                <rect x="55" y="255" width="90" height="5" fill="#4a3f34" rx="1" />
-              </svg>
-              <span className="placeholder-label">Product shot · 3/4 view</span>
+              <Image
+                src="/harumama.png"
+                alt="IRL Snaps booth installed at Haru Mama, wrapped in custom branding"
+                fill
+                sizes="(max-width: 900px) 100vw, 560px"
+                style={{ objectFit: "cover", objectPosition: "center" }}
+                priority
+              />
+              <span className="placeholder-label">Haru Mama · San Diego</span>
             </div>
             <div>
               <ul className="spec-list">
                 <li>
                   <span className="k">Footprint</span>
-                  <span className="v">32″ × 36″ floor space. Fits a snug corner.</span>
+                  <span className="v">32″ × 60″ floor space. Fits a snug corner.</span>
                 </li>
                 <li>
                   <span className="k">Power</span>
@@ -403,7 +357,7 @@ export default function Home() {
                 </li>
                 <li>
                   <span className="k">Print</span>
-                  <span className="v">Dye-sub, 4 shots per strip, dry in 10 seconds.</span>
+                  <span className="v">Dye-sub, 3 shots per strip, dry in 10 seconds.</span>
                 </li>
                 <li>
                   <span className="k">Wrap</span>
@@ -411,11 +365,11 @@ export default function Home() {
                 </li>
                 <li>
                   <span className="k">Payment</span>
-                  <span className="v">Card tap + Apple Pay. Cash optional.</span>
+                  <span className="v">Card tap, Apple Pay, Google Pay. Digital only.</span>
                 </li>
                 <li>
                   <span className="k">Uptime</span>
-                  <span className="v">99.2% — remote diagnostics, same-day service.</span>
+                  <span className="v">Built for &gt;99%. Remote diagnostics, same-day service in San Diego.</span>
                 </li>
               </ul>
             </div>
@@ -459,7 +413,7 @@ export default function Home() {
               <div className="num">/ 03</div>
               <h3>Longer dwell time</h3>
               <p>
-                Groups linger to do the booth. Venues report an avg 28-min longer stay on weekends.
+                Groups linger to do the booth. Lingering tables order another round.
               </p>
             </div>
             <div className="benefit">
@@ -478,61 +432,41 @@ export default function Home() {
         <div className="wrap">
           <div className="section-head">
             <div>
-              <div className="eyebrow">From the floor</div>
+              <div className="eyebrow">Founding venues</div>
               <h2 style={{ marginTop: 18 }}>
-                Owners<br />
-                <em>talking.</em>
+                Be one<br />
+                of the <em>first.</em>
               </h2>
             </div>
             <p>
-              140+ venues across 11 states. These are real quotes from operators who&rsquo;ve had a
-              booth for at least 6 months.
+              We&rsquo;re working with a small group of San Diego venues to lock in
+              founding-partner terms. The booth is the same — what changes is your seat at the
+              table.
             </p>
           </div>
 
           <div className="quotes">
             <div className="quote">
-              <div className="big-q">&ldquo;</div>
+              <div className="big-q">01</div>
               <p>
-                First month we cashed a $1,420 check for something we didn&rsquo;t lift a finger to
-                run. I moved a high-top to make room for it. That was the whole install from our
-                side.
+                <strong>First in, locked in.</strong> Founding partners keep their original terms
+                as we grow. The deal we strike on day one is the deal you keep.
               </p>
-              <div className="who">
-                <div className="avatar">M</div>
-                <div>
-                  <div className="name">Marisol Reyes</div>
-                  <div className="venue">Owner · The Lantern, Austin</div>
-                </div>
-              </div>
             </div>
             <div className="quote">
-              <div className="big-q">&ldquo;</div>
+              <div className="big-q">02</div>
               <p>
-                My customers post the strips before they post the cocktails. We started getting
-                people walking in asking where the booth was. That&rsquo;s the real ROI.
+                <strong>Co-designed.</strong> You weigh in on the wrap, the on-screen prompts, even
+                the strip layout. The booth should feel like it&rsquo;s always belonged on your
+                floor.
               </p>
-              <div className="who">
-                <div className="avatar">D</div>
-                <div>
-                  <div className="name">Danny Okonkwo</div>
-                  <div className="venue">GM · Lowry&rsquo;s, Brooklyn</div>
-                </div>
-              </div>
             </div>
             <div className="quote">
-              <div className="big-q">&ldquo;</div>
+              <div className="big-q">03</div>
               <p>
-                Paper jammed once in eight months. They fixed it remotely before I finished writing
-                the email. I stopped worrying about it by month two.
+                <strong>Founding-venue mark.</strong> Every strip we print at your venue carries a
+                small founding mark — a permanent nod to the rooms that backed us first.
               </p>
-              <div className="who">
-                <div className="avatar">K</div>
-                <div>
-                  <div className="name">Kate Whelan</div>
-                  <div className="venue">Owner · Molly &amp; June, Chicago</div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -560,7 +494,7 @@ export default function Home() {
               <p>
                 Zero. No install fee, no monthly fee, no minimum. We pay for the cabinet, the wrap,
                 the printer, the paper, the payment processing, and the service calls. Your only
-                ask is ~10 square feet of floor and a standard wall outlet.
+                ask is ~14 square feet of floor (a 32″ × 60″ corner) and a standard wall outlet.
               </p>
             </details>
             <details className="faq-item">
@@ -581,9 +515,9 @@ export default function Home() {
                 <span className="plus">+</span>
               </summary>
               <p>
-                We monitor every booth remotely. 90% of issues — paper jams, connectivity blips —
-                we fix without you knowing. For anything physical, we have techs in 38 metros with
-                same-day or next-morning response. You never need to troubleshoot.
+                We monitor every booth remotely. Most issues — paper jams, connectivity blips — we
+                fix without you knowing. For anything physical, we&rsquo;re San Diego–local, with
+                same-day response. You never need to troubleshoot.
               </p>
             </details>
             <details className="faq-item">
@@ -614,10 +548,10 @@ export default function Home() {
                 <span className="plus">+</span>
               </summary>
               <p>
-                None we&rsquo;ve encountered. Photobooths are not regulated the way gaming machines
-                are. We&rsquo;ve installed in bars, restaurants, breweries, wineries, and
-                members-only clubs across 11 states without a licensing conflict. If your locality
-                is unusual, we&rsquo;ll check with you before install.
+                Photobooths aren&rsquo;t regulated the way gaming machines are — they&rsquo;re
+                generally treated as standard amusement equipment. We&rsquo;ll confirm specifics for
+                your San Diego locality before install. If anything unusual comes up, we&rsquo;ll
+                flag it before you sign.
               </p>
             </details>
             <details className="faq-item">
@@ -626,8 +560,8 @@ export default function Home() {
                 <span className="plus">+</span>
               </summary>
               <p>
-                Card tap, Apple Pay, Google Pay by default. Optional cash acceptor if your crowd
-                prefers it. All transaction fees come out of our side, not yours.
+                Card tap, Apple Pay, and Google Pay. Digital only — no cash. All transaction fees
+                come out of our side, not yours.
               </p>
             </details>
           </div>
@@ -718,17 +652,14 @@ export default function Home() {
                   <a href="mailto:hello@irlsnaps.com">hello@irlsnaps.com</a>
                 </li>
                 <li>
-                  <a href="tel:+15555550123">(555) 555-0123</a>
-                </li>
-                <li>
-                  <a href="#">Brooklyn, NY</a>
+                  <a href="#">San Diego, CA</a>
                 </li>
               </ul>
             </div>
           </div>
           <div className="bottom">
             <span>© 2026 IRL Snaps, Inc.</span>
-            <span>Strips printed since launch · 2,147,889</span>
+            <span>Free for you. Pure revenue.</span>
           </div>
         </div>
       </footer>
