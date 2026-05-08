@@ -1,9 +1,46 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 
 type ModalView = "closed" | "form" | "success";
+
+function useAnimatedNumber(target: number, duration = 500) {
+  const [display, setDisplay] = useState(target);
+  const displayRef = useRef(target);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    displayRef.current = display;
+  }, [display]);
+
+  useEffect(() => {
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setDisplay(target);
+      return;
+    }
+    const from = displayRef.current;
+    const start = performance.now();
+
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(from + (target - from) * eased);
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [target, duration]);
+
+  return display;
+}
 
 export default function Home() {
   const [modal, setModal] = useState<ModalView>("closed");
@@ -12,7 +49,28 @@ export default function Home() {
 
   const stripsPerNight = Math.round(guests * 0.08);
   const monthly = Math.round(stripsPerNight * nights * 4.33 * 7 * 0.25);
-  const monthlyLabel = `$${monthly.toLocaleString()}`;
+  const animatedMonthly = useAnimatedNumber(monthly);
+  const monthlyLabel = `$${Math.round(animatedMonthly).toLocaleString()}`;
+
+  const quotesRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = quotesRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            el.classList.add("in-view");
+            obs.disconnect();
+            break;
+          }
+        }
+      },
+      { threshold: 0.2 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   const openDemo = () => setModal("form");
   const closeDemo = () => setModal("closed");
@@ -28,7 +86,7 @@ export default function Home() {
         <div className="inner">
           <a href="#" className="logo">
             <span className="logo-mark">IRL</span>
-            IRL Snaps
+            <em>snaps</em>
           </a>
           <div className="nav-links">
             <a href="#how">How it works</a>
@@ -337,7 +395,7 @@ export default function Home() {
             <div className="booth-img">
               <Image
                 src="/harumama.png"
-                alt="IRL Snaps booth installed at Haru Mama, wrapped in custom branding"
+                alt="IRL snaps booth installed at Haru Mama, wrapped in custom branding"
                 fill
                 sizes="(max-width: 900px) 100vw, 560px"
                 style={{ objectFit: "cover", objectPosition: "center" }}
@@ -445,7 +503,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="quotes">
+          <div className="quotes" ref={quotesRef}>
             <div className="quote">
               <div className="big-q">01</div>
               <p>
@@ -495,18 +553,6 @@ export default function Home() {
                 Zero. No install fee, no monthly fee, no minimum. We pay for the cabinet, the wrap,
                 the printer, the paper, the payment processing, and the service calls. Your only
                 ask is ~14 square feet of floor (a 32″ × 60″ corner) and a standard wall outlet.
-              </p>
-            </details>
-            <details className="faq-item">
-              <summary>
-                How big is the revenue split?
-                <span className="plus">+</span>
-              </summary>
-              <p>
-                Case by case. Every strip is $5 to the customer. Your share is negotiated based on
-                traffic, location, and term length — capped at a third of every strip. You&rsquo;ll
-                see exact numbers in the proposal before anything gets installed. Direct deposit on
-                the 1st with a full daily statement.
               </p>
             </details>
             <details className="faq-item">
@@ -594,7 +640,7 @@ export default function Home() {
             <div>
               <a href="#" className="logo" style={{ fontSize: 22 }}>
                 <span className="logo-mark">IRL</span>
-                IRL Snaps
+                <em>snaps</em>
               </a>
               <p style={{ marginTop: 20, maxWidth: 320, opacity: 0.7, fontSize: 14 }}>
                 Installed photobooths for bars and restaurants. Zero upfront, monthly payout,
@@ -658,7 +704,7 @@ export default function Home() {
             </div>
           </div>
           <div className="bottom">
-            <span>© 2026 IRL Snaps, Inc.</span>
+            <span>© 2026 IRL snaps, Inc.</span>
             <span>Free for you. Pure revenue.</span>
           </div>
         </div>

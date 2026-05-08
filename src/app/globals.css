@@ -103,7 +103,17 @@ nav.top .inner {
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px 32px; max-width: 1240px; margin: 0 auto;
 }
-.logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; letter-spacing: -0.01em; }
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--fs-display);
+  font-weight: 600;
+  font-size: 22px;
+  letter-spacing: -0.015em;
+}
+.logo:hover { opacity: 0.9; }
+.logo em { font-style: italic; font-variation-settings: "SOFT" 100, "WONK" 1; }
 .logo-mark {
   min-width: 42px; height: 28px; padding: 0 7px; border-radius: 6px;
   background: var(--red); color: var(--paper);
@@ -155,6 +165,17 @@ nav.top .inner {
   box-shadow: 10px 14px 0 var(--red-deep), 20px 24px 40px #0000002e;
   width: 320px;
   margin-left: auto;
+  animation:
+    filmstrip-enter 0.7s 0.15s cubic-bezier(0.16, 1, 0.3, 1) backwards,
+    filmstrip-sway 7s ease-in-out 1.5s infinite;
+}
+@keyframes filmstrip-enter {
+  from { opacity: 0; transform: translateY(36px) rotate(3deg); }
+  to   { opacity: 1; transform: translateY(0)    rotate(3deg); }
+}
+@keyframes filmstrip-sway {
+  0%, 100% { transform: rotate(3deg); }
+  50%      { transform: rotate(4.4deg); }
 }
 .filmstrip::before, .filmstrip::after {
   content: "";
@@ -172,6 +193,16 @@ nav.top .inner {
   position: relative;
   overflow: hidden;
   background: #2a2520;
+  opacity: 0;
+  animation: frame-develop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.filmstrip .frame:nth-child(1) { animation-delay: 0.95s; }
+.filmstrip .frame:nth-child(2) { animation-delay: 1.25s; }
+.filmstrip .frame:nth-child(3) { animation-delay: 1.55s; }
+.filmstrip .frame:nth-child(4) { animation-delay: 1.85s; }
+@keyframes frame-develop {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
 .frame svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .filmstrip .footer {
@@ -275,7 +306,17 @@ section.block { padding: 120px 0; position: relative; }
   background: radial-gradient(circle, var(--red) 0%, transparent 70%);
   opacity: 0.4;
 }
-.roi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; position: relative; z-index: 1; }
+.roi-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 64px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.roi-grid > * { min-width: 0; }
+.roi-grid > *:last-child { justify-self: end; width: 100%; }
+.roi .big-number { overflow: visible; word-break: keep-all; }
 .roi h2 { color: var(--paper); }
 .roi h2 em { color: var(--mustard); font-style: italic; font-weight: 400; }
 .roi .big-number {
@@ -285,6 +326,7 @@ section.block { padding: 120px 0; position: relative; }
   line-height: 0.85;
   color: var(--mustard);
   font-variation-settings: "SOFT" 100;
+  font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;
 }
 .roi .big-number small {
@@ -310,7 +352,7 @@ section.block { padding: 120px 0; position: relative; }
 .calc-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #ffffff18; }
 .calc-row:last-child { border-bottom: none; }
 .calc-label { font-size: 14px; opacity: 0.8; }
-.calc-value { font-family: var(--fs-mono); font-size: 16px; }
+.calc-value { font-family: var(--fs-mono); font-size: 16px; font-variant-numeric: tabular-nums; }
 .calc input[type=range] {
   -webkit-appearance: none; appearance: none;
   width: 180px; height: 4px;
@@ -389,19 +431,49 @@ section.block { padding: 120px 0; position: relative; }
   padding: 32px;
   position: relative;
   display: flex; flex-direction: column;
+  opacity: 0;
+  transition:
+    opacity 600ms ease,
+    transform 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.quote:nth-child(1) { transform: rotate(-1.2deg); }
-.quote:nth-child(2) { transform: rotate(0.8deg); margin-top: 20px; }
-.quote:nth-child(3) { transform: rotate(-0.4deg); }
+.quote:nth-child(1) { transform: translateY(40px) rotate(-1.2deg); }
+.quote:nth-child(2) { transform: translateY(40px) rotate(0.8deg); margin-top: 20px; }
+.quote:nth-child(3) { transform: translateY(40px) rotate(-0.4deg); }
+
+.quotes.in-view .quote { opacity: 1; }
+.quotes.in-view .quote:nth-child(1) {
+  transform: translateY(0) rotate(-1.2deg);
+  transition-delay: 0ms;
+}
+.quotes.in-view .quote:nth-child(2) {
+  transform: translateY(0) rotate(0.8deg);
+  transition-delay: 130ms;
+}
+.quotes.in-view .quote:nth-child(3) {
+  transform: translateY(0) rotate(-0.4deg);
+  transition-delay: 260ms;
+}
+
 .quote::before {
   content: "";
   position: absolute;
-  top: -16px; left: 50%; transform: translateX(-50%) rotate(-4deg);
+  top: -16px; left: 50%;
+  transform: translateX(-50%) rotate(-18deg) scale(0.55);
   width: 80px; height: 24px;
   background: var(--mustard);
-  opacity: 0.85;
+  opacity: 0;
   box-shadow: 2px 2px 4px #00000020;
+  transition:
+    opacity 200ms ease,
+    transform 380ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+.quotes.in-view .quote::before {
+  opacity: 0.85;
+  transform: translateX(-50%) rotate(-4deg) scale(1);
+}
+.quotes.in-view .quote:nth-child(1)::before { transition-delay: 520ms; }
+.quotes.in-view .quote:nth-child(2)::before { transition-delay: 650ms; }
+.quotes.in-view .quote:nth-child(3)::before { transition-delay: 780ms; }
 .quote .big-q {
   font-family: var(--fs-display);
   font-size: 72px;
@@ -556,4 +628,22 @@ footer .bottom {
   footer .grid { grid-template-columns: 1fr 1fr; }
   .nav-links { display: none; }
   .filmstrip { margin: 0 auto; }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .filmstrip,
+  .filmstrip .frame {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .quote,
+  .quote::before {
+    transition: none !important;
+    opacity: 1 !important;
+  }
+  .quotes .quote:nth-child(1) { transform: rotate(-1.2deg) !important; }
+  .quotes .quote:nth-child(2) { transform: rotate(0.8deg) !important; }
+  .quotes .quote:nth-child(3) { transform: rotate(-0.4deg) !important; }
+  .quote::before { transform: translateX(-50%) rotate(-4deg) scale(1) !important; }
 }

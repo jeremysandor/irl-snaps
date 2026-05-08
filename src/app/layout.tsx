@@ -25,7 +25,7 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "IRL Snaps — A photobooth your venue gets paid for",
+  title: "IRL snaps — A photobooth your venue gets paid for",
   description:
     "We install a classic photobooth in your bar or restaurant. Your guests pay per strip. You cash a check every month. Zero hardware cost, zero maintenance.",
 };
