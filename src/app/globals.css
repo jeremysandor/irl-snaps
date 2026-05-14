@@ -617,7 +617,7 @@ footer .bottom {
   background: var(--paper);
   color: var(--ink);
   font: inherit;
-  font-size: 15px;
+  font-size: 16px;
 }
 .modal input:focus, .modal select:focus { outline: 2px solid var(--red); outline-offset: 2px; }
 .modal .close {
