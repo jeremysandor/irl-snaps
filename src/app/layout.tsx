@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, DM_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -41,6 +42,18 @@ export default function RootLayout({
       className={`${fraunces.variable} ${inter.variable} ${dmMono.variable}`}
     >
       <body>{children}</body>
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-PT2N9GEEGE"
+        strategy="afterInteractive"
+      />
+      <Script id="gtag-init" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-PT2N9GEEGE');
+        `}
+      </Script>
     </html>
   );
 }

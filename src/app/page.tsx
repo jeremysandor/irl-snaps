@@ -56,11 +56,19 @@ export default function Home() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [phoneInput, setPhoneInput] = useState("");
-  const [guests, setGuests] = useState(125);
-  const [nights, setNights] = useState(6);
+  const [capacity, setCapacity] = useState(100);
+  const [vibe, setVibe] = useState(1);
 
-  const stripsPerNight = Math.round(guests * 0.12);
-  const monthly = Math.round(stripsPerNight * nights * 4.33 * 7 * 0.25);
+  const vibeTiers = [
+    { label: "Mellow neighborhood spot", turnover: 0.5, hit: 0.08 },
+    { label: "Weekends bring the heat", turnover: 1.0, hit: 0.11 },
+    { label: "Buzzy most nights", turnover: 1.5, hit: 0.13 },
+    { label: "Bachelorettes love us", turnover: 2.0, hit: 0.16 },
+  ];
+  const tier = vibeTiers[vibe];
+
+  const stripsPerNight = Math.round(capacity * tier.turnover * tier.hit);
+  const monthly = Math.round(stripsPerNight * 7 * 4.33 * 7 * 0.25);
   const animatedMonthly = useAnimatedNumber(monthly);
   const monthlyLabel = `$${Math.round(animatedMonthly).toLocaleString()}`;
 
@@ -371,30 +379,33 @@ export default function Home() {
                 </div>
                 <div className="calc">
                   <div className="calc-row">
-                    <span className="calc-label">Guests per night</span>
+                    <span className="calc-label">Venue capacity</span>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <input
                         type="range"
                         min={50}
                         max={300}
                         step={25}
-                        value={guests}
-                        onChange={(e) => setGuests(+e.target.value)}
+                        value={capacity}
+                        onChange={(e) => setCapacity(+e.target.value)}
                       />
-                      <span className="calc-value">{guests}</span>
+                      <span className="calc-value">{capacity}</span>
                     </div>
                   </div>
-                  <div className="calc-row">
-                    <span className="calc-label">Open nights per week</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <input
-                        type="range"
-                        min={3}
-                        max={7}
-                        value={nights}
-                        onChange={(e) => setNights(+e.target.value)}
-                      />
-                      <span className="calc-value">{nights}</span>
+                  <div className="calc-row calc-row--stack">
+                    <span className="calc-label">Typical crowd</span>
+                    <div className="vibe-pills">
+                      {vibeTiers.map((t, i) => (
+                        <button
+                          key={t.label}
+                          type="button"
+                          className={`vibe-pill${vibe === i ? " active" : ""}`}
+                          onClick={() => setVibe(i)}
+                          aria-pressed={vibe === i}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                   <div className="calc-row">
