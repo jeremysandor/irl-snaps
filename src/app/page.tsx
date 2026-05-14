@@ -56,10 +56,10 @@ export default function Home() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [phoneInput, setPhoneInput] = useState("");
-  const [guests, setGuests] = useState(200);
+  const [guests, setGuests] = useState(125);
   const [nights, setNights] = useState(6);
 
-  const stripsPerNight = Math.round(guests * 0.08);
+  const stripsPerNight = Math.round(guests * 0.12);
   const monthly = Math.round(stripsPerNight * nights * 4.33 * 7 * 0.25);
   const animatedMonthly = useAnimatedNumber(monthly);
   const monthlyLabel = `$${Math.round(animatedMonthly).toLocaleString()}`;
@@ -375,8 +375,8 @@ export default function Home() {
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <input
                         type="range"
-                        min={75}
-                        max={500}
+                        min={50}
+                        max={300}
                         step={25}
                         value={guests}
                         onChange={(e) => setGuests(+e.target.value)}
