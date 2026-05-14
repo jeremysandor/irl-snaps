@@ -42,8 +42,20 @@ function useAnimatedNumber(target: number, duration = 500) {
   return display;
 }
 
+function formatUSPhone(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 10);
+  const len = digits.length;
+  if (len === 0) return "";
+  if (len < 4) return `(${digits}`;
+  if (len < 7) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 export default function Home() {
   const [modal, setModal] = useState<ModalView>("closed");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [phoneInput, setPhoneInput] = useState("");
   const [guests, setGuests] = useState(200);
   const [nights, setNights] = useState(6);
 
@@ -72,11 +84,53 @@ export default function Home() {
     return () => obs.disconnect();
   }, []);
 
-  const openDemo = () => setModal("form");
-  const closeDemo = () => setModal("closed");
-  const submitDemo = (e: FormEvent<HTMLFormElement>) => {
+  const openDemo = () => {
+    setSubmitError(null);
+    setModal("form");
+  };
+  const closeDemo = () => {
+    setModal("closed");
+    setSubmitError(null);
+  };
+  const submitDemo = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setModal("success");
+    if (submitting) return;
+
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const payload = {
+      name: data.get("name"),
+      venue: data.get("venue"),
+      phone: data.get("phone"),
+      type: data.get("type"),
+      hp: data.get("hp"),
+    };
+
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as
+          | { error?: string }
+          | null;
+        setSubmitError(
+          body?.error ?? "Something went wrong. Try again in a moment.",
+        );
+        return;
+      }
+      form.reset();
+      setPhoneInput("");
+      setModal("success");
+    } catch {
+      setSubmitError("Network hiccup. Try again in a moment.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -95,7 +149,7 @@ export default function Home() {
             <a href="#faq">FAQ</a>
           </div>
           <button className="btn btn--red" onClick={openDemo}>
-            Book a demo →
+            See the numbers →
           </button>
         </div>
       </nav>
@@ -114,7 +168,7 @@ export default function Home() {
               </p>
               <div className="cta-row">
                 <button className="btn btn--red" onClick={openDemo}>
-                  Book a 15-min demo →
+                  See the numbers →
                 </button>
                 <a href="#how" className="btn btn--ghost">
                   See how it works
@@ -277,7 +331,7 @@ export default function Home() {
               <div className="step-num">03</div>
               <h3>You get a check every month.</h3>
               <p>
-                Every strip printed is $5. You take a cut of every one. We handle paper, ink,
+                You take a cut of every strip printed. We handle paper, ink,
                 software updates, and the 2am service calls. You get an email on the 1st.
               </p>
               <div className="tag">Forever · Cash it</div>
@@ -583,9 +637,8 @@ export default function Home() {
                 <span className="plus">+</span>
               </summary>
               <p>
-                12 months to start — enough for us to earn back the hardware. After that it&rsquo;s
-                month-to-month. We pull the booth on 30 days&rsquo; notice if it&rsquo;s ever not
-                working out. No penalty.
+                Month-to-month from day one. We pull the booth on 30 days&rsquo; notice if it&rsquo;s
+                ever not working out. No penalty, no lock-in.
               </p>
             </details>
             <details className="faq-item">
@@ -624,7 +677,7 @@ export default function Home() {
           </h2>
           <div className="cta-row">
             <button className="btn" onClick={openDemo}>
-              Book a 15-min demo →
+              See the numbers →
             </button>
             <a href="mailto:hello@irlsnaps.com" className="btn btn--ghost">
               hello@irlsnaps.com
@@ -680,7 +733,7 @@ export default function Home() {
                       cursor: "pointer",
                     }}
                   >
-                    Book a demo
+                    See the numbers
                   </button>
                 </li>
                 <li>
@@ -734,17 +787,28 @@ export default function Home() {
             </div>
           ) : (
             <>
-              <h3>Book a demo.</h3>
+              <h3>Let&rsquo;s run your numbers.</h3>
               <p className="sub">
-                15 minutes. We&rsquo;ll show you the booth, the numbers, and the install timeline.
+                15 minutes. We&rsquo;ll walk you through the booth, the install, and what your
+                venue could clear monthly.
               </p>
               <form onSubmit={submitDemo}>
                 <label>Your name</label>
                 <input required name="name" type="text" placeholder="Jordan Rivera" />
                 <label>Venue name</label>
                 <input required name="venue" type="text" placeholder="e.g. The Lantern" />
-                <label>Email</label>
-                <input required name="email" type="email" placeholder="jordan@lantern.com" />
+                <label>Phone</label>
+                <input
+                  required
+                  name="phone"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  placeholder="(555) 867-5309"
+                  maxLength={14}
+                  value={phoneInput}
+                  onChange={(e) => setPhoneInput(formatUSPhone(e.target.value))}
+                />
                 <label>Venue type</label>
                 <select required name="type" defaultValue="">
                   <option value="" disabled>
@@ -756,9 +820,40 @@ export default function Home() {
                   <option>Members club</option>
                   <option>Other</option>
                 </select>
+                <input
+                  type="text"
+                  name="hp"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    left: "-9999px",
+                    width: 1,
+                    height: 1,
+                    opacity: 0,
+                  }}
+                />
+                {submitError && (
+                  <p
+                    role="alert"
+                    style={{
+                      color: "var(--red)",
+                      fontSize: 14,
+                      marginTop: 4,
+                    }}
+                  >
+                    {submitError}
+                  </p>
+                )}
                 <div className="submit-row">
-                  <button className="btn btn--red" type="submit">
-                    Request demo →
+                  <button
+                    className="btn btn--red"
+                    type="submit"
+                    disabled={submitting}
+                    aria-busy={submitting}
+                  >
+                    {submitting ? "Sending…" : "Get my numbers →"}
                   </button>
                   <span
                     style={{
