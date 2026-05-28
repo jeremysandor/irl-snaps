@@ -92,6 +92,20 @@ export default function Home() {
     return () => obs.disconnect();
   }, []);
 
+  // Cal.com embed bootstrap — popup overlay, no page navigation.
+  useEffect(() => {
+    if (document.getElementById("cal-embed-init")) return;
+    const s = document.createElement("script");
+    s.id = "cal-embed-init";
+    s.type = "text/javascript";
+    s.text = `
+      (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+      Cal("init", "15min", {origin:"https://cal.com"});
+      Cal.ns["15min"]("ui", {"hideEventTypeDetails":false,"layout":"month_view"});
+    `;
+    document.head.appendChild(s);
+  }, []);
+
   const openDemo = () => {
     setSubmitError(null);
     setModal("form");
@@ -690,9 +704,15 @@ export default function Home() {
             <button className="btn" onClick={openDemo}>
               See the numbers →
             </button>
-            <a href="mailto:hello@irlsnaps.com" className="btn btn--ghost">
-              hello@irlsnaps.com
-            </a>
+            <button
+              type="button"
+              className="btn btn--ghost"
+              data-cal-namespace="15min"
+              data-cal-link="irl-snaps/15min"
+              data-cal-config='{"layout":"month_view","overlayCalendar":"true"}'
+            >
+              Book a 15-min call →
+            </button>
           </div>
         </div>
       </section>
@@ -759,7 +779,7 @@ export default function Home() {
               <h4>Contact</h4>
               <ul>
                 <li>
-                  <a href="mailto:hello@irlsnaps.com">hello@irlsnaps.com</a>
+                  <a href="mailto:jeremy@irlsnaps.com">jeremy@irlsnaps.com</a>
                 </li>
                 <li>
                   <a href="#">San Diego, CA</a>
